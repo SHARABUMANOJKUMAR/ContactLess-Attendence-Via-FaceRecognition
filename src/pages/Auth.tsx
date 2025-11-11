@@ -6,12 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Scan, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { FaceEnrollment } from "@/components/FaceEnrollment";
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [showEnrollment, setShowEnrollment] = useState(false);
+  const [newUserId, setNewUserId] = useState<string>("");
   const [formData, setFormData] = useState({
     roll: "",
     name: "",
@@ -61,10 +64,10 @@ const Auth = () => {
       if (data.user) {
         toast({
           title: "Account created!",
-          description: "You can now login with your credentials.",
+          description: "Now let's set up your face recognition.",
         });
-        setIsLogin(true);
-        setFormData({ ...formData, password: "" });
+        setNewUserId(data.user.id);
+        setShowEnrollment(true);
       }
     } catch (error: any) {
       console.error("Signup error:", error);
@@ -76,6 +79,17 @@ const Auth = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEnrollmentComplete = () => {
+    toast({
+      title: "Registration Complete!",
+      description: "You can now login with your credentials.",
+    });
+    setShowEnrollment(false);
+    setIsLogin(true);
+    setFormData({ roll: "", name: "", email: "", password: "" });
+    setNewUserId("");
   };
 
   const handleLogin = async (e: FormEvent) => {
@@ -124,19 +138,35 @@ const Auth = () => {
         {/* Scan line effect */}
         <div className="scan-line absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
         
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-primary mb-4 shadow-glow-primary">
-            <Scan className="w-10 h-10 text-primary-foreground" />
+        {showEnrollment ? (
+          // Face Enrollment Step
+          <div>
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
+                Face Enrollment
+              </h2>
+              <p className="text-muted-foreground text-sm">
+                Upload photos of your face for better recognition
+              </p>
+            </div>
+            <FaceEnrollment userId={newUserId} onComplete={handleEnrollmentComplete} />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-            FacePresence
-          </h1>
-          <p className="text-muted-foreground">
-            {isLogin ? "Login to mark attendance" : "Create your account"}
-          </p>
-        </div>
+        ) : (
+          // Login/Signup Form
+          <>
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-primary mb-4 shadow-glow-primary">
+                <Scan className="w-10 h-10 text-primary-foreground" />
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
+                FacePresence
+              </h1>
+              <p className="text-muted-foreground">
+                {isLogin ? "Login to mark attendance" : "Create your account"}
+              </p>
+            </div>
 
-        <form onSubmit={isLogin ? handleLogin : handleSignup} className="space-y-6">
+            <form onSubmit={isLogin ? handleLogin : handleSignup} className="space-y-6">
           {!isLogin && (
             <>
               <div className="space-y-2">
@@ -227,6 +257,8 @@ const Auth = () => {
         <div className="mt-6 text-center text-sm text-muted-foreground">
           <p>Powered by AI Face Recognition</p>
         </div>
+          </>
+        )}
       </div>
     </div>
   );

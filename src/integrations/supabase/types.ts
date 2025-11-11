@@ -65,24 +65,30 @@ export type Database = {
         Row: {
           created_at: string | null
           email: string
+          face_photos: string[] | null
           full_name: string
           id: string
+          qr_code: string | null
           roll_number: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           email: string
+          face_photos?: string[] | null
           full_name: string
           id: string
+          qr_code?: string | null
           roll_number: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           email?: string
+          face_photos?: string[] | null
           full_name?: string
           id?: string
+          qr_code?: string | null
           roll_number?: string
           updated_at?: string | null
         }
@@ -93,6 +99,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_qr_code: { Args: never; Returns: string }
       get_attendance_stats: {
         Args: { student_email: string }
         Returns: {

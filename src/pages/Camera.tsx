@@ -286,9 +286,27 @@ const Camera = () => {
       setMessage("✅ Present Marked");
       console.log("Attendance marked successfully");
       
+      // Send email notification
+      try {
+        await supabase.functions.invoke("send-attendance-email", {
+          body: {
+            email: profile.email,
+            name: profile.full_name,
+            rollNumber: profile.roll_number,
+            status: "present",
+            timestamp: new Date().toISOString(),
+            confidenceScore,
+          },
+        });
+        console.log("Email notification sent");
+      } catch (emailError) {
+        console.error("Email notification error:", emailError);
+        // Don't fail the attendance marking if email fails
+      }
+      
       setTimeout(() => {
         setStatus("completed");
-        setMessage("Attendance Recorded Successfully!");
+        setMessage("Attendance Recorded Successfully! Check your email.");
         stopCamera();
       }, 2000);
     } catch (error) {
@@ -309,6 +327,15 @@ const Camera = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Top navigation buttons */}
       <div className="absolute top-6 right-6 z-30 flex gap-3">
+        <button
+          onClick={() => navigate("/qr-scanner")}
+          className="p-3 glass rounded-full hover:bg-accent/20 transition-all border border-accent/30 hover:border-accent"
+          title="QR Scanner"
+        >
+          <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+          </svg>
+        </button>
         <button
           onClick={() => navigate("/history")}
           className="p-3 glass rounded-full hover:bg-primary/20 transition-all border border-primary/30 hover:border-primary"

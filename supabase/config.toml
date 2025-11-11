@@ -1,1 +1,4 @@
 project_id = "dmgfhxantaaookdhppty"
+
+[functions.send-attendance-email]
+verify_jwt = false

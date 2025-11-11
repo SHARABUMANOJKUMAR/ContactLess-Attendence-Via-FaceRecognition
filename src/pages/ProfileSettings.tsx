@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Save, Loader2, User, Mail, Hash } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Hash, QrCode as QrCodeIcon, Download } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
+import { QRCodeSVG } from "qrcode.react";
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
@@ -134,6 +135,35 @@ const ProfileSettings = () => {
     }
   };
 
+  const downloadQRCode = () => {
+    const svg = document.getElementById("qr-code-svg");
+    if (!svg) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx?.drawImage(img, 0, 0);
+      const pngFile = canvas.toDataURL("image/png");
+
+      const downloadLink = document.createElement("a");
+      downloadLink.download = `QR-${profile?.roll_number || "code"}.png`;
+      downloadLink.href = pngFile;
+      downloadLink.click();
+
+      toast({
+        title: "QR Code Downloaded",
+        description: "Your QR code has been saved as an image.",
+      });
+    };
+
+    img.src = "data:image/svg+xml;base64," + btoa(svgData);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -222,6 +252,44 @@ const ProfileSettings = () => {
                   <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
                 </div>
               </div>
+            </div>
+
+            {/* QR Code Section */}
+            <div className="pt-6 border-t border-border">
+              <h2 className="text-xl font-semibold text-primary mb-4 flex items-center gap-2">
+                <QrCodeIcon className="w-5 h-5" />
+                Your QR Code
+              </h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Use this QR code for quick attendance marking
+              </p>
+              {profile?.qr_code && (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="p-6 glass rounded-2xl border-2 border-primary/30">
+                    <QRCodeSVG
+                      id="qr-code-svg"
+                      value={profile.qr_code}
+                      size={200}
+                      level="H"
+                      includeMargin
+                      className="w-full h-auto"
+                    />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-lg font-mono font-bold text-primary mb-2">
+                      {profile.qr_code}
+                    </p>
+                    <Button
+                      onClick={downloadQRCode}
+                      variant="outline"
+                      className="glass border-primary/30 hover:border-primary"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download QR Code
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Password Section */}
