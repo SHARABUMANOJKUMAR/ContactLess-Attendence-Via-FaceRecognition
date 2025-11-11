@@ -37,7 +37,7 @@ const Camera = () => {
   const loadModels = async () => {
     try {
       setMessage("Loading AI models...");
-      const MODEL_URL = "https://cdn.jsdelivr.net/npm/face-api.js/weights";
+      const MODEL_URL = "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights";
       
       await Promise.all([
         faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
