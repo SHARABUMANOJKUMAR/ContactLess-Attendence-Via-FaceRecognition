@@ -14,13 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      attendance_records: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          email: string
+          face_vector: Json | null
+          id: string
+          roll_number: string
+          status: string
+          student_name: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          email: string
+          face_vector?: Json | null
+          id?: string
+          roll_number: string
+          status: string
+          student_name: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          email?: string
+          face_vector?: Json | null
+          id?: string
+          roll_number?: string
+          status?: string
+          student_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_attendance_stats: {
+        Args: { student_email: string }
+        Returns: {
+          absent_count: number
+          attendance_rate: number
+          present_count: number
+          total_records: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
