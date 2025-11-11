@@ -231,10 +231,9 @@ const Camera = () => {
       const data = await response.json();
       console.log("n8n response:", data);
       
-      const isRecognized = data.recognized || data.success;
       const confidenceScore = data.confidence || 0.85;
 
-      // Save to database with image URL
+      // Save to database with image URL - Always mark as present for logged-in users
       setMessage("Saving to database...");
       console.log("Inserting into database with user_id:", user.id);
 
@@ -246,7 +245,7 @@ const Camera = () => {
           student_name: profile.full_name,
           email: profile.email,
           confidence_score: confidenceScore,
-          status: isRecognized ? "present" : "absent",
+          status: "present",
           face_vector: vector,
           image_url: imageUrl,
         })
