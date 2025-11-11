@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as faceapi from "face-api.js";
 import { CheckCircle2, XCircle, Camera as CameraIcon, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Camera = () => {
   const navigate = useNavigate();
@@ -125,6 +126,7 @@ const Camera = () => {
       const name = localStorage.getItem("name");
       const email = localStorage.getItem("email");
 
+      // Send to n8n webhook for verification
       const response = await fetch("https://shivashakthi.app.n8n.cloud/webhook/attendence", {
         method: "POST",
         headers: {
@@ -139,8 +141,26 @@ const Camera = () => {
       });
 
       const data = await response.json();
+      const isRecognized = data.recognized || data.success;
+      const confidenceScore = data.confidence || 0.85; // Default confidence if not provided
 
-      if (data.recognized || data.success) {
+      // Save to database
+      const { error: dbError } = await supabase
+        .from("attendance_records")
+        .insert({
+          roll_number: roll,
+          student_name: name,
+          email: email,
+          confidence_score: confidenceScore,
+          status: isRecognized ? "present" : "absent",
+          face_vector: vector,
+        });
+
+      if (dbError) {
+        console.error("Error saving to database:", dbError);
+      }
+
+      if (isRecognized) {
         setStatus("success");
         setMessage("✅ Present Marked");
         setTimeout(() => {
