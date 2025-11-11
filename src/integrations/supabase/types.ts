@@ -25,6 +25,7 @@ export type Database = {
           roll_number: string
           status: string
           student_name: string
+          user_id: string | null
         }
         Insert: {
           confidence_score?: number | null
@@ -36,6 +37,7 @@ export type Database = {
           roll_number: string
           status: string
           student_name: string
+          user_id?: string | null
         }
         Update: {
           confidence_score?: number | null
@@ -47,6 +49,42 @@ export type Database = {
           roll_number?: string
           status?: string
           student_name?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          roll_number: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name: string
+          id: string
+          roll_number: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          roll_number?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

@@ -3,31 +3,56 @@ import { useNavigate } from "react-router-dom";
 import * as faceapi from "face-api.js";
 import { CheckCircle2, XCircle, Camera as CameraIcon, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 const Camera = () => {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState<"scanning" | "success" | "error" | "completed">("scanning");
-  const [message, setMessage] = useState("Initializing face detection...");
+  const [message, setMessage] = useState("Checking authentication...");
   const detectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasDetectedRef = useRef(false);
 
   useEffect(() => {
-    // Check if user data exists
-    const roll = localStorage.getItem("roll");
-    const name = localStorage.getItem("name");
-    const email = localStorage.getItem("email");
+    // Check authentication
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate("/");
+        return;
+      }
 
-    if (!roll || !name || !email) {
-      navigate("/");
-      return;
-    }
+      setUser(session.user);
+      
+      // Fetch user profile
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+      
+      if (profileData) {
+        setProfile(profileData);
+        loadModels();
+      }
+    };
 
-    loadModels();
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session || event === 'SIGNED_OUT') {
+        navigate("/");
+      }
+    });
 
     return () => {
+      subscription.unsubscribe();
       if (detectionIntervalRef.current) {
         clearInterval(detectionIntervalRef.current);
       }
@@ -121,12 +146,10 @@ const Camera = () => {
   };
 
   const sendAttendance = async (vector: number[]) => {
+    if (!user || !profile) return;
+    
     try {
-      const roll = localStorage.getItem("roll");
-      const name = localStorage.getItem("name");
-      const email = localStorage.getItem("email");
-
-      console.log("Starting attendance submission for:", { roll, name, email });
+      console.log("Starting attendance submission for:", profile);
       setMessage("Capturing face image...");
 
       // Capture image from video
@@ -151,7 +174,7 @@ const Camera = () => {
           setMessage("Uploading to Cloud...");
 
           // Upload to Supabase storage
-          const fileName = `${roll}_${Date.now()}.jpg`;
+          const fileName = `${profile.roll_number}_${Date.now()}.jpg`;
           console.log("Uploading to storage as:", fileName);
           
           const { data: uploadData, error: uploadError } = await supabase.storage
@@ -185,9 +208,9 @@ const Camera = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          roll,
-          name,
-          email,
+          roll: profile.roll_number,
+          name: profile.full_name,
+          email: profile.email,
           vector,
         }),
       });
@@ -200,21 +223,15 @@ const Camera = () => {
 
       // Save to database with image URL
       setMessage("Saving to database...");
-      console.log("Inserting into database:", {
-        roll_number: roll,
-        student_name: name,
-        email: email,
-        confidence_score: confidenceScore,
-        status: isRecognized ? "present" : "absent",
-        image_url: imageUrl,
-      });
+      console.log("Inserting into database with user_id:", user.id);
 
       const { data: insertData, error: dbError } = await supabase
         .from("attendance_records")
         .insert({
-          roll_number: roll,
-          student_name: name,
-          email: email,
+          user_id: user.id,
+          roll_number: profile.roll_number,
+          student_name: profile.full_name,
+          email: profile.email,
           confidence_score: confidenceScore,
           status: isRecognized ? "present" : "absent",
           face_vector: vector,
@@ -341,7 +358,7 @@ const Camera = () => {
                 onClick={() => navigate("/")}
                 className="mt-4 px-6 py-2 bg-gradient-primary text-primary-foreground rounded-lg hover:shadow-glow-primary transition-all"
               >
-                Back to Login
+                Done
               </button>
             </div>
           )}
