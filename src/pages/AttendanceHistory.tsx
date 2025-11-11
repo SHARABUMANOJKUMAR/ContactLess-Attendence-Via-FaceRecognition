@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Calendar, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
+import { ArrowLeft, Calendar, CheckCircle2, XCircle, TrendingUp, Download, User as UserIcon, LogOut } from "lucide-react";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface AttendanceRecord {
   id: string;
@@ -11,10 +13,12 @@ interface AttendanceRecord {
   confidence_score: number;
   student_name: string;
   roll_number: string;
+  email: string;
 }
 
 const AttendanceHistory = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, present: 0, absent: 0, rate: 0 });
@@ -76,6 +80,128 @@ const AttendanceHistory = () => {
     navigate("/");
   };
 
+  const exportToCSV = () => {
+    if (!records.length) {
+      toast({
+        title: "No data to export",
+        description: "You don't have any attendance records yet.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const headers = ["Date", "Time", "Status", "Confidence Score", "Roll Number", "Name", "Email"];
+    const csvContent = [
+      headers.join(","),
+      ...records.map(record => {
+        const date = new Date(record.created_at);
+        return [
+          date.toLocaleDateString(),
+          date.toLocaleTimeString(),
+          record.status,
+          record.confidence_score || "N/A",
+          record.roll_number,
+          record.student_name,
+          record.email
+        ].join(",");
+      })
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `attendance-records-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Export successful",
+      description: "Your attendance records have been downloaded as CSV.",
+    });
+  };
+
+  const exportToPDF = () => {
+    if (!records.length) {
+      toast({
+        title: "No data to export",
+        description: "You don't have any attendance records yet.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create a simple HTML report
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Attendance Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { color: #00C9FF; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+          th { background-color: #00C9FF; color: white; }
+          .stats { background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 20px 0; }
+          .present { color: green; font-weight: bold; }
+          .absent { color: red; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <h1>Attendance Report</h1>
+        <div class="stats">
+          <h3>Summary Statistics</h3>
+          <p><strong>Total Records:</strong> ${stats?.total || 0}</p>
+          <p><strong>Present:</strong> ${stats?.present || 0}</p>
+          <p><strong>Absent:</strong> ${stats?.absent || 0}</p>
+          <p><strong>Attendance Rate:</strong> ${stats?.rate || 0}%</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Status</th>
+              <th>Confidence Score</th>
+              <th>Roll Number</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${records.map(record => {
+              const date = new Date(record.created_at);
+              return `
+                <tr>
+                  <td>${date.toLocaleDateString()}</td>
+                  <td>${date.toLocaleTimeString()}</td>
+                  <td class="${record.status}">${record.status}</td>
+                  <td>${record.confidence_score || "N/A"}</td>
+                  <td>${record.roll_number}</td>
+                  <td>${record.student_name}</td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([htmlContent], { type: "text/html" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `attendance-report-${new Date().toISOString().split('T')[0]}.html`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Export successful",
+      description: "Your attendance report has been downloaded as HTML (open in browser to print as PDF).",
+    });
+  };
+
   return (
     <div className="min-h-screen p-4 md:p-8 relative overflow-hidden">
       {/* Background particles */}
@@ -95,24 +221,55 @@ const AttendanceHistory = () => {
 
       {/* Header */}
       <div className="max-w-6xl mx-auto relative z-10">
-        <div className="flex items-center justify-between mb-8">
-          <button
-            onClick={() => navigate("/camera")}
-            className="p-3 glass rounded-full hover:bg-primary/20 transition-all border border-primary/30 hover:border-primary"
-          >
-            <ArrowLeft className="w-6 h-6 text-primary" />
-          </button>
-
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Attendance History
-          </h1>
-
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 glass rounded-lg hover:bg-destructive/20 transition-all border border-primary/30 text-sm font-medium text-foreground"
-          >
-            Logout
-          </button>
+        <div className="flex flex-col gap-4 mb-8">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              Attendance History
+            </h1>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            <Button
+              onClick={() => navigate("/camera")}
+              variant="outline"
+              className="glass border-primary/30 hover:border-primary"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Camera
+            </Button>
+            <Button
+              onClick={() => navigate("/profile")}
+              variant="outline"
+              className="glass border-accent/30 hover:border-accent"
+            >
+              <UserIcon className="w-4 h-4 mr-2" />
+              Profile
+            </Button>
+            <Button
+              onClick={exportToCSV}
+              variant="outline"
+              className="glass border-primary/30 hover:border-primary"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button
+              onClick={exportToPDF}
+              variant="outline"
+              className="glass border-secondary/30 hover:border-secondary"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export PDF
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="glass border-destructive/30 hover:border-destructive"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}

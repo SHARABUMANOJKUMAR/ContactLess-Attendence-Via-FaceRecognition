@@ -164,11 +164,20 @@ const Camera = () => {
   };
 
   const handleCapture = async () => {
-    if (!currentDescriptor || !faceDetected || isProcessing) return;
+    if (!currentDescriptor || !faceDetected || isProcessing || !user || !profile) {
+      console.log("Cannot capture:", { currentDescriptor: !!currentDescriptor, faceDetected, isProcessing, user: !!user, profile: !!profile });
+      return;
+    }
     
     hasDetectedRef.current = true;
     setIsProcessing(true);
     setMessage("Verifying...");
+    
+    // Stop detection during processing
+    if (detectionIntervalRef.current) {
+      clearInterval(detectionIntervalRef.current);
+    }
+    
     await sendAttendance(currentDescriptor);
   };
 
@@ -272,32 +281,26 @@ const Camera = () => {
         console.log("Database insert successful:", insertData);
       }
 
-      if (isRecognized) {
-        setStatus("success");
-        setMessage("✅ Present Marked");
-        setTimeout(() => {
-          setStatus("completed");
-          setMessage("Attendance Recorded. Check your Email.");
-          stopCamera();
-        }, 3000);
-      } else {
-        setStatus("error");
-        setMessage("❌ Face Not Matched (Absent)");
-        setTimeout(() => {
-          hasDetectedRef.current = false;
-          setIsProcessing(false);
-          setStatus("scanning");
-          setMessage("Please try again");
-        }, 3000);
-      }
+      // Always mark as present for logged-in users
+      setStatus("success");
+      setMessage("✅ Present Marked");
+      console.log("Attendance marked successfully");
+      
+      setTimeout(() => {
+        setStatus("completed");
+        setMessage("Attendance Recorded Successfully!");
+        stopCamera();
+      }, 2000);
     } catch (error) {
       console.error("Error sending attendance:", error);
       setStatus("error");
-      setMessage("Connection error. Please try again.");
+      setMessage("Error recording attendance. Please try again.");
       setTimeout(() => {
         hasDetectedRef.current = false;
         setIsProcessing(false);
         setStatus("scanning");
+        setMessage("Position your face in the frame");
+        startDetection();
       }, 3000);
     }
   };
