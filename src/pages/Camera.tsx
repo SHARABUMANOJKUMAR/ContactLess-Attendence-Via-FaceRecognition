@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as faceapi from "face-api.js";
-import { CheckCircle2, XCircle, Camera as CameraIcon, Loader2, ArrowLeft } from "lucide-react";
+import { CheckCircle2, XCircle, Camera as CameraIcon, Loader2, ArrowLeft, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
 const Camera = () => {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -124,7 +125,7 @@ const Camera = () => {
   };
 
   const detectFace = async () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !canvasRef.current) return;
 
     try {
       const detections = await faceapi
@@ -132,10 +133,24 @@ const Camera = () => {
         .withFaceLandmarks()
         .withFaceDescriptor();
 
+      // Clear canvas
+      const canvas = canvasRef.current;
+      const displaySize = { width: videoRef.current.videoWidth, height: videoRef.current.videoHeight };
+      faceapi.matchDimensions(canvas, displaySize);
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
       if (detections) {
         setFaceDetected(true);
         setCurrentDescriptor(Array.from(detections.descriptor));
         setMessage("Face detected! Click capture to mark attendance");
+
+        // Draw detections on canvas
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        faceapi.draw.drawDetections(canvas, resizedDetections);
+        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
       } else {
         setFaceDetected(false);
         setCurrentDescriptor(null);
@@ -289,13 +304,23 @@ const Camera = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Back button */}
-      <button
-        onClick={() => navigate("/")}
-        className="absolute top-6 right-6 z-30 p-3 glass rounded-full hover:bg-primary/20 transition-all border border-primary/30 hover:border-primary"
-      >
-        <ArrowLeft className="w-6 h-6 text-primary" />
-      </button>
+      {/* Top navigation buttons */}
+      <div className="absolute top-6 right-6 z-30 flex gap-3">
+        <button
+          onClick={() => navigate("/history")}
+          className="p-3 glass rounded-full hover:bg-primary/20 transition-all border border-primary/30 hover:border-primary"
+          title="View History"
+        >
+          <History className="w-6 h-6 text-primary" />
+        </button>
+        <button
+          onClick={() => navigate("/")}
+          className="p-3 glass rounded-full hover:bg-primary/20 transition-all border border-primary/30 hover:border-primary"
+          title="Back to Login"
+        >
+          <ArrowLeft className="w-6 h-6 text-primary" />
+        </button>
+      </div>
 
       {/* Background particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -324,19 +349,25 @@ const Camera = () => {
       <div className="relative glass rounded-3xl overflow-hidden holographic-border max-w-3xl w-full">
         <div className="scan-line absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-70 z-20" />
         
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          className="w-full h-auto object-cover"
-        />
+        <div className="relative">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            playsInline
+            className="w-full h-auto object-cover"
+          />
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 w-full h-full"
+          />
+        </div>
 
         {/* Overlay corners */}
-        <div className="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-primary rounded-tl-lg" />
-        <div className="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-primary rounded-tr-lg" />
-        <div className="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-primary rounded-bl-lg" />
-        <div className="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-primary rounded-br-lg" />
+        <div className="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-primary rounded-tl-lg z-10" />
+        <div className="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-primary rounded-tr-lg z-10" />
+        <div className="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-primary rounded-bl-lg z-10" />
+        <div className="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-primary rounded-br-lg z-10" />
       </div>
 
       {/* Capture button */}

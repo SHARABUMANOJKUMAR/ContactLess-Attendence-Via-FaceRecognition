@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Scan } from "lucide-react";
+import { Scan, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -203,13 +203,25 @@ const Auth = () => {
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-3">
           <button
             onClick={() => setIsLogin(!isLogin)}
             className="text-primary hover:text-primary/80 transition-colors text-sm"
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
           </button>
+          
+          {isLogin && (
+            <div>
+              <button
+                onClick={() => navigate("/history")}
+                className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors text-sm font-medium"
+              >
+                <History className="w-4 h-4" />
+                View Attendance History
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="mt-6 text-center text-sm text-muted-foreground">
