@@ -115,11 +115,28 @@ const QRScanner = () => {
         return;
       }
 
-      // Mark attendance
+      // Security: Only allow users to scan their own QR code
+      if (profile.id !== session.user.id) {
+        setStatus("error");
+        setMessage("❌ You can only scan your own QR code");
+        toast({
+          title: "Unauthorized",
+          description: "You can only mark attendance for yourself.",
+          variant: "destructive",
+        });
+        
+        setTimeout(() => {
+          setStatus("idle");
+          setMessage("");
+        }, 3000);
+        return;
+      }
+
+      // Mark attendance for authenticated user only
       const { error: attendanceError } = await supabase
         .from("attendance_records")
         .insert({
-          user_id: profile.id,
+          user_id: session.user.id,
           roll_number: profile.roll_number,
           student_name: profile.full_name,
           email: profile.email,
