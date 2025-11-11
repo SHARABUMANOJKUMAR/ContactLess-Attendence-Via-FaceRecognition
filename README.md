@@ -1,73 +1,160 @@
-# Welcome to your Lovable project
+# FacePresence — Contactless Face Recognition Attendance System
 
-## Project info
+FacePresence is a modern, fully client-side facial recognition attendance system built using:
 
-**URL**: https://lovable.dev/projects/af9228ba-2627-4356-a50c-bea634bb18a5
+- **Frontend:** React / TypeScript / Vite (Generated in Lovable)
+- **UI Library:** shadcn-ui + TailwindCSS (Futuristic / Glassmorphism UI)
+- **Face Recognition:** face-api.js (Browser-Based ML — No Server GPU Required)
+- **Backend / Automation:** n8n workflow
+- **Database:** Google Sheets (Cloud Spreadsheet Database)
+- **Email Notifications:** Gmail API through n8n
 
-## How can I edit this code?
+This system allows users to **log in or register**, and then **mark attendance simply by showing their face**.  
+No touch. No fingerprint. No app installation. No passwords.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 🚀 Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/af9228ba-2627-4356-a50c-bea634bb18a5) and start prompting.
+| Feature | Description |
+|--------|-------------|
+| Login / Registration | User enters Roll No, Name, Email |
+| Camera Attendance Page | Automatically activates webcam and detects face |
+| New User Auto Registration | New students get their face embedding saved to the database |
+| Returning User Recognition | Face matched → Mark **Present**, Otherwise **Absent** |
+| Cloud-Based Attendance Records | Stored in Google Sheets automatically |
+| Email Notifications | User receives email confirmation of Present / Absent status |
+| Fully Browser-Based Recognition | No backend ML model required |
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🌐 Live Project Dashboard
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+**Lovable Project Workspace**  
+https://lovable.dev/projects/af9228ba-2627-4356-a50c-bea634bb18a5
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Use Lovable to update UI, generate pages, or make workflow-related UI changes.
 
-Follow these steps:
+---
 
+## 🛠️ Local Development
+
+You can also run or edit this project locally.
+
+### Requirements
+- Node.js + npm (Recommended install via `nvm`)
+- Any IDE (VS Code recommended)
+
+### Steps
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone the repo
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Enter project folder
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
+# Install dependencies
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+Your project will now be available at:
+http://localhost:5173
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🔗 Backend / n8n Setup (Important)
 
-**Use GitHub Codespaces**
+This application communicates with your n8n workflow using a **POST request**:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+POST http://localhost:5678/webhook/attendance
 
-## What technologies are used for this project?
+Make sure your n8n workflow is:
 
-This project is built with:
+- ✅ **Activated**
+- ✅ Connected with **Google Sheets Credential**
+- ✅ Using the following **Sheet Tabs** (exact spelling required):
+  - `Students`
+  - `FaceEmbeddings`
+  - `Attendance`
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+## 📦 Google Sheets Data Structure
 
-Simply open [Lovable](https://lovable.dev/projects/af9228ba-2627-4356-a50c-bea634bb18a5) and click on Share -> Publish.
+### **Students Sheet**
+Stores basic student information.
+| RollNo | Name | Email |
 
-## Can I connect a custom domain to my Lovable project?
+### **FaceEmbeddings Sheet**
+Stores each student's face embedding for recognition.
+| RollNo | Model | VectorJson | CreatedAt |
 
-Yes, you can!
+### **Attendance Sheet**
+Stores daily attendance logs.
+| DateTime | RollNo | Status (Present / Absent) | Confidence |
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## ✨ Editing the UI in Lovable
+
+You can modify UI and logic easily through Lovable’s visual AI builder:
+
+**Open Project:**  
+https://lovable.dev/projects/af9228ba-2627-4356-a50c-bea634bb18a5
+
+**How to edit:**
+1. Use prompts to request changes (example: _“Add neon glow to camera frame”_)
+2. Review generated updates
+3. Approve → Changes automatically sync to your repo
+
+---
+
+## ✏ Editing Directly in GitHub
+
+1. Select the file to edit
+2. Click the **pencil (edit)** icon
+3. Save & commit → Changes sync to Lovable automatically
+
+---
+
+## 🧑‍💻 Editing Locally (VS Code)
+
+If you cloned the repo locally, simply modify code and:
+
+git add .
+git commit -m "update"
+git push
+
+Changes will sync back to Lovable.
+
+---
+
+## 🌍 Deployment
+
+To publish:
+
+Open Lovable → Share → Publish
+
+To use your own domain:
+
+
+
+Project → Settings → Domains → Connect Domain
+
+
+---
+
+## ✅ Status
+
+This project is **production-ready** and can be used in:
+
+- Schools
+- Colleges
+- Coaching Centers
+- Training / Corporate Attendance Systems
+- Labs / Library Entry Monitoring
+
+---
+
+
+
