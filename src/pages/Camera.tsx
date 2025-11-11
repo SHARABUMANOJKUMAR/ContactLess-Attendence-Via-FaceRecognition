@@ -126,9 +126,13 @@ const Camera = () => {
       const name = localStorage.getItem("name");
       const email = localStorage.getItem("email");
 
+      console.log("Starting attendance submission for:", { roll, name, email });
+      setMessage("Capturing face image...");
+
       // Capture image from video
       let imageUrl = null;
       if (videoRef.current) {
+        console.log("Video element found, capturing image...");
         const canvas = document.createElement("canvas");
         canvas.width = videoRef.current.videoWidth;
         canvas.height = videoRef.current.videoHeight;
@@ -136,14 +140,20 @@ const Camera = () => {
         
         if (ctx) {
           ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+          console.log("Image drawn to canvas:", canvas.width, "x", canvas.height);
           
           // Convert canvas to blob
           const blob = await new Promise<Blob>((resolve) => {
             canvas.toBlob((b) => resolve(b!), "image/jpeg", 0.85);
           });
 
+          console.log("Image blob created, size:", blob.size, "bytes");
+          setMessage("Uploading to Cloud...");
+
           // Upload to Supabase storage
           const fileName = `${roll}_${Date.now()}.jpg`;
+          console.log("Uploading to storage as:", fileName);
+          
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from("face-images")
             .upload(fileName, blob, {
@@ -154,16 +164,21 @@ const Camera = () => {
           if (uploadError) {
             console.error("Error uploading image:", uploadError);
           } else {
+            console.log("Upload successful:", uploadData);
             // Get public URL
             const { data: urlData } = supabase.storage
               .from("face-images")
               .getPublicUrl(fileName);
             imageUrl = urlData.publicUrl;
+            console.log("Image URL:", imageUrl);
           }
         }
       }
 
       // Send to n8n webhook for verification
+      setMessage("Verifying face...");
+      console.log("Sending to n8n webhook...");
+      
       const response = await fetch("https://shivashakthi.app.n8n.cloud/webhook/attendence", {
         method: "POST",
         headers: {
@@ -178,11 +193,23 @@ const Camera = () => {
       });
 
       const data = await response.json();
+      console.log("n8n response:", data);
+      
       const isRecognized = data.recognized || data.success;
-      const confidenceScore = data.confidence || 0.85; // Default confidence if not provided
+      const confidenceScore = data.confidence || 0.85;
 
       // Save to database with image URL
-      const { error: dbError } = await supabase
+      setMessage("Saving to database...");
+      console.log("Inserting into database:", {
+        roll_number: roll,
+        student_name: name,
+        email: email,
+        confidence_score: confidenceScore,
+        status: isRecognized ? "present" : "absent",
+        image_url: imageUrl,
+      });
+
+      const { data: insertData, error: dbError } = await supabase
         .from("attendance_records")
         .insert({
           roll_number: roll,
@@ -192,10 +219,13 @@ const Camera = () => {
           status: isRecognized ? "present" : "absent",
           face_vector: vector,
           image_url: imageUrl,
-        });
+        })
+        .select();
 
       if (dbError) {
         console.error("Error saving to database:", dbError);
+      } else {
+        console.log("Database insert successful:", insertData);
       }
 
       if (isRecognized) {
