@@ -21,6 +21,7 @@ export type Database = {
           email: string
           face_vector: Json | null
           id: string
+          image_url: string | null
           roll_number: string
           status: string
           student_name: string
@@ -31,6 +32,7 @@ export type Database = {
           email: string
           face_vector?: Json | null
           id?: string
+          image_url?: string | null
           roll_number: string
           status: string
           student_name: string
@@ -41,6 +43,7 @@ export type Database = {
           email?: string
           face_vector?: Json | null
           id?: string
+          image_url?: string | null
           roll_number?: string
           status?: string
           student_name?: string

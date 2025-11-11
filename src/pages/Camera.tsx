@@ -126,6 +126,43 @@ const Camera = () => {
       const name = localStorage.getItem("name");
       const email = localStorage.getItem("email");
 
+      // Capture image from video
+      let imageUrl = null;
+      if (videoRef.current) {
+        const canvas = document.createElement("canvas");
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
+        const ctx = canvas.getContext("2d");
+        
+        if (ctx) {
+          ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+          
+          // Convert canvas to blob
+          const blob = await new Promise<Blob>((resolve) => {
+            canvas.toBlob((b) => resolve(b!), "image/jpeg", 0.85);
+          });
+
+          // Upload to Supabase storage
+          const fileName = `${roll}_${Date.now()}.jpg`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from("face-images")
+            .upload(fileName, blob, {
+              contentType: "image/jpeg",
+              cacheControl: "3600",
+            });
+
+          if (uploadError) {
+            console.error("Error uploading image:", uploadError);
+          } else {
+            // Get public URL
+            const { data: urlData } = supabase.storage
+              .from("face-images")
+              .getPublicUrl(fileName);
+            imageUrl = urlData.publicUrl;
+          }
+        }
+      }
+
       // Send to n8n webhook for verification
       const response = await fetch("https://shivashakthi.app.n8n.cloud/webhook/attendence", {
         method: "POST",
@@ -144,7 +181,7 @@ const Camera = () => {
       const isRecognized = data.recognized || data.success;
       const confidenceScore = data.confidence || 0.85; // Default confidence if not provided
 
-      // Save to database
+      // Save to database with image URL
       const { error: dbError } = await supabase
         .from("attendance_records")
         .insert({
@@ -154,6 +191,7 @@ const Camera = () => {
           confidence_score: confidenceScore,
           status: isRecognized ? "present" : "absent",
           face_vector: vector,
+          image_url: imageUrl,
         });
 
       if (dbError) {
