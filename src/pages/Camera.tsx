@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as faceapi from "face-api.js";
-import { CheckCircle2, XCircle, Camera as CameraIcon, Loader2 } from "lucide-react";
+import { CheckCircle2, XCircle, Camera as CameraIcon, Loader2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
@@ -14,6 +14,8 @@ const Camera = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState<"scanning" | "success" | "error" | "completed">("scanning");
   const [message, setMessage] = useState("Checking authentication...");
+  const [faceDetected, setFaceDetected] = useState(false);
+  const [currentDescriptor, setCurrentDescriptor] = useState<number[] | null>(null);
   const detectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasDetectedRef = useRef(false);
 
@@ -115,14 +117,14 @@ const Camera = () => {
     }
 
     detectionIntervalRef.current = setInterval(async () => {
-      if (videoRef.current && isModelLoaded && !isProcessing && !hasDetectedRef.current) {
+      if (videoRef.current && isModelLoaded && !isProcessing) {
         await detectFace();
       }
-    }, 1000);
+    }, 500);
   };
 
   const detectFace = async () => {
-    if (!videoRef.current || hasDetectedRef.current) return;
+    if (!videoRef.current) return;
 
     try {
       const detections = await faceapi
@@ -131,18 +133,28 @@ const Camera = () => {
         .withFaceDescriptor();
 
       if (detections) {
-        hasDetectedRef.current = true;
-        setIsProcessing(true);
-        setMessage("Face detected! Verifying...");
-        
-        const descriptor = Array.from(detections.descriptor);
-        await sendAttendance(descriptor);
+        setFaceDetected(true);
+        setCurrentDescriptor(Array.from(detections.descriptor));
+        setMessage("Face detected! Click capture to mark attendance");
       } else {
-        setMessage("Position your face in the frame");
+        setFaceDetected(false);
+        setCurrentDescriptor(null);
+        if (!isProcessing) {
+          setMessage("Position your face in the frame");
+        }
       }
     } catch (error) {
       console.error("Detection error:", error);
     }
+  };
+
+  const handleCapture = async () => {
+    if (!currentDescriptor || !faceDetected || isProcessing) return;
+    
+    hasDetectedRef.current = true;
+    setIsProcessing(true);
+    setMessage("Verifying...");
+    await sendAttendance(currentDescriptor);
   };
 
   const sendAttendance = async (vector: number[]) => {
@@ -277,6 +289,14 @@ const Camera = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Back button */}
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-6 right-6 z-30 p-3 glass rounded-full hover:bg-primary/20 transition-all border border-primary/30 hover:border-primary"
+      >
+        <ArrowLeft className="w-6 h-6 text-primary" />
+      </button>
+
       {/* Background particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(8)].map((_, i) => (
@@ -319,12 +339,26 @@ const Camera = () => {
         <div className="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-primary rounded-br-lg" />
       </div>
 
+      {/* Capture button */}
+      {status === "scanning" && !isProcessing && (
+        <button
+          onClick={handleCapture}
+          disabled={!faceDetected || !currentDescriptor}
+          className="mt-6 z-10 px-8 py-4 bg-gradient-primary text-primary-foreground rounded-2xl font-bold text-lg hover:shadow-glow-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+        >
+          <div className="flex items-center gap-3">
+            <CameraIcon className="w-6 h-6" />
+            Capture Attendance
+          </div>
+        </button>
+      )}
+
       {/* Status message */}
       <div className="mt-8 text-center z-10">
         <div className="glass rounded-2xl p-6 max-w-md mx-auto">
           {status === "scanning" && !isProcessing && (
             <div className="flex items-center justify-center gap-3">
-              <CameraIcon className="w-6 h-6 text-primary animate-pulse" />
+              <CameraIcon className={`w-6 h-6 ${faceDetected ? 'text-success' : 'text-primary'} ${faceDetected ? 'animate-none' : 'animate-pulse'}`} />
               <p className="text-lg text-foreground">{message}</p>
             </div>
           )}
