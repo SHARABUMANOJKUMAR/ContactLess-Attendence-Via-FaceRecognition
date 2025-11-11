@@ -1,1 +1,7 @@
 project_id = "dmgfhxantaaookdhppty"
+
+[functions.send-attendance-email]
+verify_jwt = true
+
+[functions.validate-face-image]
+verify_jwt = true

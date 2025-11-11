@@ -99,12 +99,29 @@ export const FaceEnrollment = ({ userId, onComplete }: FaceEnrollmentProps) => {
 
       for (let i = 0; i < photos.length; i++) {
         const photo = photos[i];
+        
+        // Validate image on server-side before upload
+        const { data: validationData, error: validationError } = await supabase.functions.invoke(
+          "validate-face-image",
+          {
+            body: {
+              imageData: photo,
+              userId: userId,
+            },
+          }
+        );
+
+        if (validationError || !validationData?.valid) {
+          throw new Error(validationData?.error || validationError?.message || "Image validation failed");
+        }
+
         const blob = await fetch(photo).then((r) => r.blob());
-        const fileName = `${userId}/${userId}_face_${i}_${Date.now()}.jpg`;
+        const fileName = `${userId}_face_${i}_${Date.now()}.jpg`;
+        const filePath = `${userId}/${fileName}`;
 
         const { data, error } = await supabase.storage
           .from("face-images")
-          .upload(fileName, blob, {
+          .upload(filePath, blob, {
             contentType: "image/jpeg",
             cacheControl: "3600",
           });
@@ -114,7 +131,7 @@ export const FaceEnrollment = ({ userId, onComplete }: FaceEnrollmentProps) => {
         // Create signed URL (valid for 1 year for enrollment photos)
         const { data: urlData, error: urlError } = await supabase.storage
           .from("face-images")
-          .createSignedUrl(fileName, 31536000);
+          .createSignedUrl(filePath, 31536000);
 
         if (urlError) throw urlError;
 
