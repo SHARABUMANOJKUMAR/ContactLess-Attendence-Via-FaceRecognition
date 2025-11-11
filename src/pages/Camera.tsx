@@ -96,8 +96,7 @@ const Camera = () => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
-        setMessage("Position your face in the frame");
-        startDetection();
+        setMessage("Camera ready. Click 'Capture Attendance' when ready.");
       }
     } catch (error) {
       console.error("Error accessing camera:", error);
@@ -112,73 +111,43 @@ const Camera = () => {
     }
   };
 
-  const startDetection = () => {
-    if (detectionIntervalRef.current) {
-      clearInterval(detectionIntervalRef.current);
+  const handleCapture = async () => {
+    if (isProcessing || !user || !profile || !videoRef.current || !canvasRef.current) {
+      return;
     }
-
-    detectionIntervalRef.current = setInterval(async () => {
-      if (videoRef.current && isModelLoaded && !isProcessing) {
-        await detectFace();
-      }
-    }, 500);
-  };
-
-  const detectFace = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
+    
+    setIsProcessing(true);
+    setMessage("Detecting face...");
+    
     try {
+      // Detect face on button click
       const detections = await faceapi
         .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
         .withFaceLandmarks()
         .withFaceDescriptor();
 
-      // Clear canvas
+      if (!detections) {
+        setMessage("No face detected. Please try again.");
+        setIsProcessing(false);
+        return;
+      }
+
+      // Draw detection feedback
       const canvas = canvasRef.current;
       const displaySize = { width: videoRef.current.videoWidth, height: videoRef.current.videoHeight };
       faceapi.matchDimensions(canvas, displaySize);
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
+      const resizedDetections = faceapi.resizeResults(detections, displaySize);
+      faceapi.draw.drawDetections(canvas, resizedDetections);
+      faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
 
-      if (detections) {
-        setFaceDetected(true);
-        setCurrentDescriptor(Array.from(detections.descriptor));
-        setMessage("Face detected! Click capture to mark attendance");
-
-        // Draw detections on canvas
-        const resizedDetections = faceapi.resizeResults(detections, displaySize);
-        faceapi.draw.drawDetections(canvas, resizedDetections);
-        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-      } else {
-        setFaceDetected(false);
-        setCurrentDescriptor(null);
-        if (!isProcessing) {
-          setMessage("Position your face in the frame");
-        }
-      }
+      const descriptor = Array.from(detections.descriptor);
+      hasDetectedRef.current = true;
+      await sendAttendance(descriptor);
     } catch (error) {
       console.error("Detection error:", error);
+      setMessage("Error detecting face. Please try again.");
+      setIsProcessing(false);
     }
-  };
-
-  const handleCapture = async () => {
-    if (!currentDescriptor || !faceDetected || isProcessing || !user || !profile) {
-      console.log("Cannot capture:", { currentDescriptor: !!currentDescriptor, faceDetected, isProcessing, user: !!user, profile: !!profile });
-      return;
-    }
-    
-    hasDetectedRef.current = true;
-    setIsProcessing(true);
-    setMessage("Verifying...");
-    
-    // Stop detection during processing
-    if (detectionIntervalRef.current) {
-      clearInterval(detectionIntervalRef.current);
-    }
-    
-    await sendAttendance(currentDescriptor);
   };
 
   const sendAttendance = async (vector: number[]) => {
@@ -213,9 +182,12 @@ const Camera = () => {
           const fileName = `${profile.roll_number}_${Date.now()}.jpg`;
           console.log("Uploading to storage as:", fileName);
           
+          // Upload with user folder structure
+          const userFileName = `${user.id}/${fileName}`;
+          
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from("face-images")
-            .upload(fileName, blob, {
+            .upload(userFileName, blob, {
               contentType: "image/jpeg",
               cacheControl: "3600",
             });
@@ -224,12 +196,17 @@ const Camera = () => {
             console.error("Error uploading image:", uploadError);
           } else {
             console.log("Upload successful:", uploadData);
-            // Get public URL
-            const { data: urlData } = supabase.storage
+            // Get signed URL (valid for 1 hour)
+            const { data: urlData, error: urlError } = await supabase.storage
               .from("face-images")
-              .getPublicUrl(fileName);
-            imageUrl = urlData.publicUrl;
-            console.log("Image URL:", imageUrl);
+              .createSignedUrl(userFileName, 3600);
+            
+            if (urlError) {
+              console.error("Error creating signed URL:", urlError);
+            } else {
+              imageUrl = urlData.signedUrl;
+              console.log("Image URL:", imageUrl);
+            }
           }
         }
       }
@@ -317,8 +294,7 @@ const Camera = () => {
         hasDetectedRef.current = false;
         setIsProcessing(false);
         setStatus("scanning");
-        setMessage("Position your face in the frame");
-        startDetection();
+        setMessage("Camera ready. Click 'Capture Attendance' when ready.");
       }, 3000);
     }
   };
@@ -404,8 +380,7 @@ const Camera = () => {
       {status === "scanning" && !isProcessing && (
         <button
           onClick={handleCapture}
-          disabled={!faceDetected || !currentDescriptor}
-          className="mt-6 z-10 px-8 py-4 bg-gradient-primary text-primary-foreground rounded-2xl font-bold text-lg hover:shadow-glow-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+          className="mt-6 z-10 px-8 py-4 bg-gradient-primary text-primary-foreground rounded-2xl font-bold text-lg hover:shadow-glow-primary transition-all"
         >
           <div className="flex items-center gap-3">
             <CameraIcon className="w-6 h-6" />
@@ -419,7 +394,7 @@ const Camera = () => {
         <div className="glass rounded-2xl p-6 max-w-md mx-auto">
           {status === "scanning" && !isProcessing && (
             <div className="flex items-center justify-center gap-3">
-              <CameraIcon className={`w-6 h-6 ${faceDetected ? 'text-success' : 'text-primary'} ${faceDetected ? 'animate-none' : 'animate-pulse'}`} />
+              <CameraIcon className="w-6 h-6 text-primary" />
               <p className="text-lg text-foreground">{message}</p>
             </div>
           )}

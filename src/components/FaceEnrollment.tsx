@@ -100,7 +100,7 @@ export const FaceEnrollment = ({ userId, onComplete }: FaceEnrollmentProps) => {
       for (let i = 0; i < photos.length; i++) {
         const photo = photos[i];
         const blob = await fetch(photo).then((r) => r.blob());
-        const fileName = `${userId}_face_${i}_${Date.now()}.jpg`;
+        const fileName = `${userId}/${userId}_face_${i}_${Date.now()}.jpg`;
 
         const { data, error } = await supabase.storage
           .from("face-images")
@@ -111,11 +111,14 @@ export const FaceEnrollment = ({ userId, onComplete }: FaceEnrollmentProps) => {
 
         if (error) throw error;
 
-        const { data: urlData } = supabase.storage
+        // Create signed URL (valid for 1 year for enrollment photos)
+        const { data: urlData, error: urlError } = await supabase.storage
           .from("face-images")
-          .getPublicUrl(fileName);
+          .createSignedUrl(fileName, 31536000);
 
-        uploadedUrls.push(urlData.publicUrl);
+        if (urlError) throw urlError;
+
+        uploadedUrls.push(urlData.signedUrl);
       }
 
       // Update profile with face photo URLs
