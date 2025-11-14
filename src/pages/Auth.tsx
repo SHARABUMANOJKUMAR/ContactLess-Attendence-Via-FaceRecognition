@@ -7,6 +7,7 @@ import { Scan, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { FaceEnrollment } from "@/components/FaceEnrollment";
+import logo from "@/assets/logo.png";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -125,141 +126,225 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Floating particles */}
+      {/* Logo & Department Caption - Top Right */}
+      <div className="absolute top-8 right-8 z-50 flex flex-col items-center gap-3">
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gradient-gold rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+          <img 
+            src={logo} 
+            alt="Siddharth Institutions Logo" 
+            className="w-32 h-32 relative z-10 drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+        <div className="text-center relative">
+          <div className="absolute inset-0 bg-gradient-gold rounded-lg blur-md opacity-30"></div>
+          <p className="text-accent font-bold text-lg tracking-wider gold-shimmer relative z-10 px-4 py-2 bg-card/60 rounded-lg border border-accent/30 backdrop-blur-sm">
+            DEPARTMENT OF CAD
+          </p>
+        </div>
+      </div>
+
+      {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="particle absolute top-[10%] left-[10%] w-2 h-2 bg-primary rounded-full opacity-60" style={{ animationDelay: "0s" }} />
-        <div className="particle absolute top-[20%] right-[15%] w-1 h-1 bg-secondary rounded-full opacity-40" style={{ animationDelay: "1s" }} />
-        <div className="particle absolute bottom-[30%] left-[20%] w-1.5 h-1.5 bg-accent rounded-full opacity-50" style={{ animationDelay: "2s" }} />
-        <div className="particle absolute bottom-[15%] right-[25%] w-2 h-2 bg-primary rounded-full opacity-30" style={{ animationDelay: "1.5s" }} />
+        {[...Array(30)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full particle"
+            style={{
+              width: Math.random() * 6 + 2 + "px",
+              height: Math.random() * 6 + 2 + "px",
+              left: Math.random() * 100 + "%",
+              top: Math.random() * 100 + "%",
+              background: i % 3 === 0 
+                ? "hsl(210, 100%, 50%)" 
+                : i % 3 === 1 
+                ? "hsl(45, 100%, 55%)" 
+                : "hsl(280, 85%, 55%)",
+              boxShadow: i % 3 === 0 
+                ? "0 0 20px hsl(210 100% 50% / 0.8)" 
+                : i % 3 === 1
+                ? "0 0 20px hsl(45 100% 55% / 0.8)"
+                : "0 0 20px hsl(280 85% 55% / 0.8)",
+              animationDelay: Math.random() * 3 + "s",
+              animationDuration: Math.random() * 4 + 4 + "s",
+            }}
+          />
+        ))}
       </div>
 
-      {/* Main card */}
-      <div className="glass rounded-3xl p-8 md:p-12 max-w-md w-full relative holographic-border">
-        {/* Scan line effect */}
-        <div className="scan-line absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
-        
-        {showEnrollment ? (
-          // Face Enrollment Step
-          <div>
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-                Face Enrollment
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                Upload photos of your face for better recognition
-              </p>
-            </div>
-            <FaceEnrollment userId={newUserId} onComplete={handleEnrollmentComplete} />
-          </div>
-        ) : (
-          // Login/Signup Form
-          <>
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-primary mb-4 shadow-glow-primary">
-                <Scan className="w-10 h-10 text-primary-foreground" />
-              </div>
-              <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-                FacePresence
-              </h1>
-              <p className="text-muted-foreground">
-                {isLogin ? "Login to mark attendance" : "Create your account"}
-              </p>
-            </div>
+      {/* Radial gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent pointer-events-none" />
 
-            <form onSubmit={isLogin ? handleLogin : handleSignup} className="space-y-6">
-          {!isLogin && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="roll" className="text-foreground">Roll Number</Label>
-                <Input
-                  id="roll"
-                  type="text"
-                  required
-                  value={formData.roll}
-                  onChange={(e) => setFormData({ ...formData, roll: e.target.value })}
-                  className="glass border-primary/30 focus:border-primary focus:shadow-glow-primary transition-all bg-card/50"
-                  placeholder="Enter your roll number"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-foreground">Full Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="glass border-primary/30 focus:border-primary focus:shadow-glow-primary transition-all bg-card/50"
-                  placeholder="Enter your full name"
-                />
-              </div>
-            </>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-foreground">Email Address</Label>
-            <Input
-              id="email"
-              type="email"
-              required
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="glass border-primary/30 focus:border-primary focus:shadow-glow-primary transition-all bg-card/50"
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-foreground">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              minLength={6}
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="glass border-primary/30 focus:border-primary focus:shadow-glow-primary transition-all bg-card/50"
-              placeholder="Enter your password"
-            />
-          </div>
-
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-primary text-primary-foreground hover:shadow-glow-primary transition-all duration-300 text-lg py-6 font-semibold"
-          >
-            {loading ? "Processing..." : isLogin ? "Login" : "Create Account"}
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center space-y-3">
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-primary hover:text-primary/80 transition-colors text-sm"
-          >
-            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
-          </button>
-          
-          {isLogin && (
-            <div>
-              <button
-                onClick={() => navigate("/history")}
-                className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors text-sm font-medium"
-              >
-                <History className="w-4 h-4" />
-                View Attendance History
-              </button>
-            </div>
-          )}
+      {showEnrollment ? (
+        <div className="w-full max-w-4xl relative z-10">
+          <FaceEnrollment 
+            userId={newUserId} 
+            onComplete={handleEnrollmentComplete}
+          />
         </div>
+      ) : (
+        <div className="w-full max-w-md relative z-10">
+          {/* Main Card with Royal Styling */}
+          <div className="glass rounded-2xl p-8 shadow-2xl holographic-border relative overflow-hidden">
+            {/* Decorative corner elements */}
+            <div className="absolute top-0 left-0 w-24 h-24 border-t-4 border-l-4 border-accent rounded-tl-2xl opacity-50"></div>
+            <div className="absolute bottom-0 right-0 w-24 h-24 border-b-4 border-r-4 border-primary rounded-br-2xl opacity-50"></div>
+            
+            {/* Scan line effect */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="scan-line absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-30"></div>
+            </div>
 
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          <p>Powered by AI Face Recognition</p>
+            <div className="relative z-10">
+              {/* Header */}
+              <div className="text-center mb-8">
+                <h1 className="text-4xl font-bold mb-2 bg-gradient-royal bg-clip-text text-transparent">
+                  FacePresence
+                </h1>
+                <p className="text-muted-foreground text-sm tracking-wide">
+                  Advanced Biometric Authentication System
+                </p>
+              </div>
+
+              {/* Toggle Buttons */}
+              <div className="flex gap-2 mb-6 p-1 bg-card rounded-xl border border-border">
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(true)}
+                  className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-300 ${
+                    isLogin
+                      ? "bg-gradient-primary text-primary-foreground shadow-glow-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Login
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(false)}
+                  className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-300 ${
+                    !isLogin
+                      ? "bg-gradient-gold text-accent-foreground shadow-glow-gold"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Register
+                </button>
+              </div>
+
+              {/* Forms */}
+              <form onSubmit={isLogin ? handleLogin : handleSignup} className="space-y-5">
+                {!isLogin && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="roll" className="text-foreground font-medium">
+                        Roll Number
+                      </Label>
+                      <Input
+                        id="roll"
+                        type="text"
+                        placeholder="Enter your roll number"
+                        value={formData.roll}
+                        onChange={(e) => setFormData({ ...formData, roll: e.target.value })}
+                        required={!isLogin}
+                        className="bg-input border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-foreground font-medium">
+                        Full Name
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Enter your full name"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required={!isLogin}
+                        className="bg-input border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-foreground font-medium">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your.email@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    className="bg-input border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-foreground font-medium">
+                    Password
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    required
+                    className="bg-input border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full py-6 text-lg font-bold bg-gradient-primary hover:shadow-glow-primary transition-all duration-300 hover:scale-[1.02] relative overflow-hidden group"
+                  disabled={loading}
+                >
+                  <span className="relative z-10">
+                    {loading ? "Processing..." : isLogin ? "Sign In" : "Create Account"}
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </Button>
+              </form>
+
+              {/* Quick Actions */}
+              {isLogin && (
+                <div className="mt-8 pt-6 border-t border-border">
+                  <p className="text-sm text-muted-foreground mb-4 text-center">Quick Actions</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex items-center justify-center gap-2 border-primary/50 hover:bg-primary/10 hover:border-primary transition-all"
+                      onClick={() => navigate("/camera")}
+                    >
+                      <Scan className="w-4 h-4" />
+                      <span className="text-sm">Face Scan</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex items-center justify-center gap-2 border-accent/50 hover:bg-accent/10 hover:border-accent transition-all"
+                      onClick={() => navigate("/history")}
+                    >
+                      <History className="w-4 h-4" />
+                      <span className="text-sm">History</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Footer Text */}
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            Powered by{" "}
+            <span className="text-accent font-semibold">AI Face Recognition</span>
+          </p>
         </div>
-          </>
-        )}
-      </div>
+      )}
     </div>
   );
 };

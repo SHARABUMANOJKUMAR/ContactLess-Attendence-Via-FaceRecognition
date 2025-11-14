@@ -55,11 +55,14 @@ export default {
       backgroundImage: {
         'gradient-space': 'var(--gradient-space)',
         'gradient-primary': 'var(--gradient-primary)',
+        'gradient-gold': 'var(--gradient-gold)',
+        'gradient-royal': 'var(--gradient-royal)',
         'gradient-accent': 'var(--gradient-accent)',
         'gradient-success': 'var(--gradient-success)',
       },
       boxShadow: {
         'glow-primary': 'var(--glow-primary)',
+        'glow-gold': 'var(--glow-gold)',
         'glow-accent': 'var(--glow-accent)',
         'glow-success': 'var(--glow-success)',
         'glow-error': 'var(--glow-error)',
