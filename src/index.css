@@ -67,6 +67,14 @@ All colors MUST be HSL.
     /* Animations */
     --transition-glow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-smooth: all 0.3s ease-in-out;
+
+    /* Galaxy Theme Colors */
+    --galaxy-purple: 270 80% 40%;
+    --galaxy-blue: 220 90% 50%;
+    --galaxy-cyan: 190 90% 60%;
+    --galaxy-pink: 320 85% 60%;
+    --nebula-orange: 25 95% 60%;
+    --star-white: 60 100% 95%;
   }
 }
 
@@ -153,5 +161,116 @@ All colors MUST be HSL.
 
   .particle {
     animation: float 3s ease-in-out infinite;
+  }
+
+  /* Logo pulse animation */
+  @keyframes logo-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 20px hsl(var(--accent) / 0.5));
+      transform: scale(1);
+    }
+    50% {
+      filter: drop-shadow(0 0 40px hsl(var(--accent) / 0.8)) drop-shadow(0 0 60px hsl(var(--primary) / 0.6));
+      transform: scale(1.05);
+    }
+  }
+
+  .logo-pulse {
+    animation: logo-pulse 3s ease-in-out infinite;
+  }
+
+  /* Gradient border animation */
+  @keyframes gradient-border {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .gradient-border-animated {
+    position: relative;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--primary)),
+      hsl(var(--accent)),
+      hsl(var(--galaxy-purple)),
+      hsl(var(--accent)),
+      hsl(var(--primary))
+    );
+    background-size: 300% 100%;
+    animation: gradient-border 4s ease infinite;
+    padding: 3px;
+    border-radius: 1rem;
+  }
+
+  /* Slide animations */
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .slide-in-left {
+    animation: slide-in-left 0.4s ease-out forwards;
+  }
+
+  .slide-in-right {
+    animation: slide-in-right 0.4s ease-out forwards;
+  }
+
+  /* Planet orbit animation */
+  @keyframes planet-orbit {
+    from {
+      transform: rotate(0deg) translateX(var(--orbit-radius)) rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg) translateX(var(--orbit-radius)) rotate(-360deg);
+    }
+  }
+
+  .planet {
+    position: absolute;
+    border-radius: 50%;
+    animation: planet-orbit linear infinite;
+  }
+
+  /* Star twinkle animation */
+  @keyframes twinkle {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  .star {
+    position: absolute;
+    background: hsl(var(--star-white));
+    border-radius: 50%;
+    animation: twinkle ease-in-out infinite;
   }
 }

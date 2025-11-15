@@ -125,15 +125,14 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#0a0118] via-[#1a0a2e] to-[#0f0720]">
       {/* Logo & Department Caption - Top Left */}
       <div className="absolute top-8 left-8 z-50 flex flex-col items-center gap-3">
-        <div className="relative group">
-          <div className="absolute inset-0 bg-gradient-gold rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+        <div className="relative">
           <img 
             src={logo} 
             alt="Siddharth Institutions Logo" 
-            className="w-32 h-32 relative z-10 drop-shadow-2xl"
+            className="w-40 h-40 relative z-10 logo-pulse"
           />
         </div>
         <div className="text-center relative">
@@ -144,36 +143,93 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* Animated background particles */}
+      {/* Galaxy Background - Stars */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(30)].map((_, i) => (
+        {[...Array(100)].map((_, i) => (
           <div
-            key={i}
-            className="absolute rounded-full particle"
+            key={`star-${i}`}
+            className="star"
             style={{
-              width: Math.random() * 6 + 2 + "px",
-              height: Math.random() * 6 + 2 + "px",
+              width: Math.random() * 3 + 1 + "px",
+              height: Math.random() * 3 + 1 + "px",
               left: Math.random() * 100 + "%",
               top: Math.random() * 100 + "%",
-              background: i % 3 === 0 
-                ? "hsl(210, 100%, 50%)" 
-                : i % 3 === 1 
-                ? "hsl(45, 100%, 55%)" 
-                : "hsl(280, 85%, 55%)",
-              boxShadow: i % 3 === 0 
-                ? "0 0 20px hsl(210 100% 50% / 0.8)" 
-                : i % 3 === 1
-                ? "0 0 20px hsl(45 100% 55% / 0.8)"
-                : "0 0 20px hsl(280 85% 55% / 0.8)",
-              animationDelay: Math.random() * 3 + "s",
-              animationDuration: Math.random() * 4 + 4 + "s",
+              animationDuration: Math.random() * 3 + 2 + "s",
+              animationDelay: Math.random() * 5 + "s",
             }}
           />
         ))}
       </div>
 
-      {/* Radial gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent pointer-events-none" />
+      {/* Planets */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Large purple planet */}
+        <div
+          className="planet"
+          style={{
+            width: "120px",
+            height: "120px",
+            background: "radial-gradient(circle at 30% 30%, hsl(270, 80%, 60%), hsl(270, 80%, 30%))",
+            boxShadow: "0 0 60px hsl(270 80% 60% / 0.6), inset -20px -20px 50px rgba(0,0,0,0.5)",
+            top: "15%",
+            left: "15%",
+            "--orbit-radius": "80px",
+            animationDuration: "60s",
+          } as React.CSSProperties}
+        />
+        
+        {/* Blue-cyan planet */}
+        <div
+          className="planet"
+          style={{
+            width: "80px",
+            height: "80px",
+            background: "radial-gradient(circle at 40% 40%, hsl(190, 90%, 70%), hsl(220, 90%, 40%))",
+            boxShadow: "0 0 40px hsl(190 90% 60% / 0.7), inset -15px -15px 40px rgba(0,0,0,0.5)",
+            top: "60%",
+            right: "10%",
+            "--orbit-radius": "60px",
+            animationDuration: "45s",
+          } as React.CSSProperties}
+        />
+
+        {/* Small orange planet */}
+        <div
+          className="planet"
+          style={{
+            width: "50px",
+            height: "50px",
+            background: "radial-gradient(circle at 35% 35%, hsl(25, 95%, 70%), hsl(25, 95%, 45%))",
+            boxShadow: "0 0 30px hsl(25 95% 60% / 0.8), inset -10px -10px 25px rgba(0,0,0,0.5)",
+            bottom: "20%",
+            left: "25%",
+            "--orbit-radius": "40px",
+            animationDuration: "35s",
+          } as React.CSSProperties}
+        />
+
+        {/* Pink nebula planet */}
+        <div
+          className="planet"
+          style={{
+            width: "90px",
+            height: "90px",
+            background: "radial-gradient(circle at 30% 30%, hsl(320, 85%, 70%), hsl(320, 85%, 40%))",
+            boxShadow: "0 0 50px hsl(320 85% 60% / 0.6), inset -18px -18px 45px rgba(0,0,0,0.5)",
+            top: "40%",
+            right: "30%",
+            "--orbit-radius": "70px",
+            animationDuration: "55s",
+          } as React.CSSProperties}
+        />
+      </div>
+
+      {/* Nebula clouds */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+        <div className="absolute w-[600px] h-[600px] rounded-full blur-[100px] bg-gradient-to-br from-purple-500/30 via-blue-500/20 to-transparent top-0 -left-20 animate-pulse" style={{ animationDuration: "8s" }} />
+        <div className="absolute w-[500px] h-[500px] rounded-full blur-[100px] bg-gradient-to-br from-cyan-500/30 via-pink-500/20 to-transparent bottom-0 -right-20 animate-pulse" style={{ animationDuration: "10s" }} />
+        <div className="absolute w-[400px] h-[400px] rounded-full blur-[80px] bg-gradient-to-br from-orange-500/20 via-purple-500/20 to-transparent top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ animationDuration: "12s" }} />
+      </div>
 
       {showEnrollment ? (
         <div className="w-full max-w-4xl relative z-10">
@@ -184,8 +240,9 @@ const Auth = () => {
         </div>
       ) : (
         <div className="w-full max-w-md relative z-10">
-          {/* Main Card with Royal Styling */}
-          <div className="glass rounded-2xl p-8 shadow-2xl holographic-border relative overflow-hidden">
+          {/* Main Card with Animated Gradient Border */}
+          <div className="gradient-border-animated">
+          <div className="glass rounded-2xl p-8 shadow-2xl relative overflow-hidden bg-card/95 backdrop-blur-xl">
             {/* Decorative corner elements */}
             <div className="absolute top-0 left-0 w-24 h-24 border-t-4 border-l-4 border-accent rounded-tl-2xl opacity-50"></div>
             <div className="absolute bottom-0 right-0 w-24 h-24 border-b-4 border-r-4 border-primary rounded-br-2xl opacity-50"></div>
@@ -233,7 +290,7 @@ const Auth = () => {
               </div>
 
               {/* Forms */}
-              <form onSubmit={isLogin ? handleLogin : handleSignup} className="space-y-5">
+              <form onSubmit={isLogin ? handleLogin : handleSignup} className={`space-y-5 ${isLogin ? 'slide-in-left' : 'slide-in-right'}`} key={isLogin ? 'login' : 'signup'}>
                 {!isLogin && (
                   <>
                     <div className="space-y-2">
@@ -336,6 +393,7 @@ const Auth = () => {
                 </div>
               )}
             </div>
+          </div>
           </div>
 
           {/* Footer Text */}
