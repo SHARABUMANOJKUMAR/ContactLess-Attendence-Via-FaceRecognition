@@ -7,7 +7,7 @@ import { Scan, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { FaceEnrollment } from "@/components/FaceEnrollment";
-import { Logo3D } from "@/components/Logo3D";
+import logo from "@/assets/logo.png";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -126,10 +126,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Logo & Department Caption - Top Right */}
-      <div className="absolute top-8 right-8 z-50 flex flex-col items-center gap-3">
+      {/* Logo & Department Caption - Top Left */}
+      <div className="absolute top-8 left-8 z-50 flex flex-col items-center gap-3">
         <div className="relative group">
-          <Logo3D />
+          <div className="absolute inset-0 bg-gradient-gold rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+          <img 
+            src={logo} 
+            alt="Siddharth Institutions Logo" 
+            className="w-32 h-32 relative z-10 drop-shadow-2xl"
+          />
         </div>
         <div className="text-center relative">
           <div className="absolute inset-0 bg-gradient-gold rounded-lg blur-md opacity-30"></div>
