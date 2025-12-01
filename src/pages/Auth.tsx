@@ -144,17 +144,17 @@ const Auth = () => {
       className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#0a0118] via-[#1a0a2e] to-[#0f0720]"
     >
       {/* Logo & Department Caption - Top Left */}
-      <div className="absolute top-8 left-8 z-50 flex flex-col items-center gap-3">
+      <div className="absolute top-4 left-4 md:top-8 md:left-8 z-50 flex flex-col items-center gap-2 md:gap-3">
         <div className="relative">
           <img 
             src={logo} 
             alt="Siddharth Institutions Logo" 
-            className="w-40 h-40 relative z-10 logo-pulse"
+            className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 relative z-10 logo-pulse object-contain"
           />
         </div>
-        <div className="text-center relative">
+        <div className="text-center relative hidden sm:block">
           <div className="absolute inset-0 bg-gradient-gold rounded-lg blur-md opacity-30"></div>
-          <p className="text-accent font-bold text-lg tracking-wider gold-shimmer relative z-10 px-4 py-2 bg-card/60 rounded-lg border border-accent/30 backdrop-blur-sm">
+          <p className="text-accent font-bold text-sm md:text-base lg:text-lg tracking-wider gold-shimmer relative z-10 px-3 md:px-4 py-1.5 md:py-2 bg-card/60 rounded-lg border border-accent/30 backdrop-blur-sm">
             DEPARTMENT OF CAD
           </p>
         </div>
@@ -291,10 +291,10 @@ const Auth = () => {
           />
         </div>
       ) : (
-        <div className="w-full max-w-md relative z-10">
+        <div className="w-full max-w-md relative z-10 px-4 sm:px-0">
           {/* Main Card with Animated Gradient Border */}
           <div className="gradient-border-animated">
-          <div className="glass rounded-2xl p-8 shadow-2xl relative overflow-hidden bg-card/95 backdrop-blur-xl">
+          <div className="glass rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl relative overflow-hidden bg-card/95 backdrop-blur-xl">
             {/* Decorative corner elements */}
             <div className="absolute top-0 left-0 w-24 h-24 border-t-4 border-l-4 border-accent rounded-tl-2xl opacity-50"></div>
             <div className="absolute bottom-0 right-0 w-24 h-24 border-b-4 border-r-4 border-primary rounded-br-2xl opacity-50"></div>
@@ -306,11 +306,11 @@ const Auth = () => {
 
             <div className="relative z-10">
               {/* Header */}
-              <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold mb-2 bg-gradient-royal bg-clip-text text-transparent">
+              <div className="text-center mb-6 md:mb-8">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 bg-gradient-royal bg-clip-text text-transparent">
                   FacePresence
                 </h1>
-                <p className="text-muted-foreground text-sm tracking-wide">
+                <p className="text-muted-foreground text-xs sm:text-sm tracking-wide">
                   Advanced Biometric Authentication System
                 </p>
               </div>
