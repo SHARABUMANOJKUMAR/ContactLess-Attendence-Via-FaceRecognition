@@ -273,4 +273,70 @@ All colors MUST be HSL.
     border-radius: 50%;
     animation: twinkle ease-in-out infinite;
   }
+
+  /* Shooting star animation */
+  @keyframes shooting-star {
+    0% {
+      transform: translateX(0) translateY(0) rotate(-45deg);
+      opacity: 1;
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(300px) translateY(300px) rotate(-45deg);
+      opacity: 0;
+    }
+  }
+
+  .shooting-star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: hsl(var(--star-white));
+    border-radius: 50%;
+    box-shadow: 0 0 10px 2px hsl(var(--star-white)), 
+                -50px -50px 20px 10px hsl(var(--star-white) / 0.5);
+  }
+
+  /* Aurora borealis animation */
+  @keyframes aurora-flow {
+    0%, 100% {
+      transform: translateX(-50%) translateY(0) scale(1);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translateX(-50%) translateY(-30px) scale(1.1);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes aurora-shift {
+    0%, 100% {
+      filter: hue-rotate(0deg);
+    }
+    50% {
+      filter: hue-rotate(30deg);
+    }
+  }
+
+  .aurora {
+    position: absolute;
+    width: 150%;
+    height: 300px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--galaxy-cyan) / 0.3) 20%,
+      hsl(var(--galaxy-purple) / 0.4) 40%,
+      hsl(var(--galaxy-pink) / 0.3) 60%,
+      hsl(var(--galaxy-blue) / 0.3) 80%,
+      transparent 100%
+    );
+    filter: blur(60px);
+    animation: aurora-flow 15s ease-in-out infinite, aurora-shift 20s ease-in-out infinite;
+    pointer-events: none;
+  }
 }

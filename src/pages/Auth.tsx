@@ -1,4 +1,4 @@
-import { useState, FormEvent, useEffect } from "react";
+import { useState, FormEvent, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,20 @@ const Auth = () => {
     email: "",
     password: "",
   });
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const backgroundRef = useRef<HTMLDivElement>(null);
+
+  // Parallax mouse tracking
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      setMousePosition({ x, y });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -125,7 +139,10 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#0a0118] via-[#1a0a2e] to-[#0f0720]">
+    <div 
+      ref={backgroundRef}
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-[#0a0118] via-[#1a0a2e] to-[#0f0720]"
+    >
       {/* Logo & Department Caption - Top Left */}
       <div className="absolute top-8 left-8 z-50 flex flex-col items-center gap-3">
         <div className="relative">
@@ -143,8 +160,14 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* Galaxy Background - Stars */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Galaxy Background - Stars with Parallax */}
+      <div 
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        style={{
+          transform: `translate(${mousePosition.x * 10}px, ${mousePosition.y * 10}px)`,
+          transition: 'transform 0.3s ease-out'
+        }}
+      >
         {[...Array(100)].map((_, i) => (
           <div
             key={`star-${i}`}
@@ -161,8 +184,37 @@ const Auth = () => {
         ))}
       </div>
 
-      {/* Planets */}
+      {/* Shooting Stars */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={`shooting-star-${i}`}
+            className="shooting-star"
+            style={{
+              left: Math.random() * 100 + "%",
+              top: Math.random() * 50 + "%",
+              animation: `shooting-star ${3 + Math.random() * 2}s linear infinite`,
+              animationDelay: `${i * 4 + Math.random() * 3}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Aurora Borealis Effect */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="aurora" style={{ top: '10%' }} />
+        <div className="aurora" style={{ top: '40%', animationDelay: '5s', animationDuration: '18s' }} />
+        <div className="aurora" style={{ top: '70%', animationDelay: '10s', animationDuration: '22s' }} />
+      </div>
+
+      {/* Planets with Parallax */}
+      <div 
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        style={{
+          transform: `translate(${mousePosition.x * 20}px, ${mousePosition.y * 20}px)`,
+          transition: 'transform 0.5s ease-out'
+        }}
+      >
         {/* Large purple planet */}
         <div
           className="planet"
