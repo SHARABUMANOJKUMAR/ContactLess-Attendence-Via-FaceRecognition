@@ -149,7 +149,8 @@ const Auth = () => {
           <img 
             src={logo} 
             alt="Siddharth Institutions Logo" 
-            className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 relative z-10 logo-pulse object-contain"
+            className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 relative z-10 logo-pulse object-contain"
+            style={{ maxWidth: '100%', height: 'auto' }}
           />
         </div>
         <div className="text-center relative hidden sm:block">
