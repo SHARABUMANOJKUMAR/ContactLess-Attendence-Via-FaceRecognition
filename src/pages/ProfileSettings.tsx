@@ -173,7 +173,7 @@ const ProfileSettings = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 md:p-6 relative overflow-hidden">
       {/* Background particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(8)].map((_, i) => (
@@ -189,10 +189,10 @@ const ProfileSettings = () => {
         ))}
       </div>
 
-      <div className="w-full max-w-2xl z-10">
+      <div className="w-full max-w-2xl z-10 px-2 sm:px-4">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             Profile Settings
           </h1>
           <Button
@@ -206,7 +206,7 @@ const ProfileSettings = () => {
         </div>
 
         {/* Profile Card */}
-        <Card className="glass p-6 md:p-8">
+        <Card className="glass p-4 sm:p-6 md:p-8">
           <div className="space-y-6">
             {/* Profile Info Section */}
             <div>
@@ -264,15 +264,15 @@ const ProfileSettings = () => {
                 Use this QR code for quick attendance marking
               </p>
               {profile?.qr_code && (
-                <div className="flex flex-col items-center gap-4">
-                  <div className="p-6 glass rounded-2xl border-2 border-primary/30">
+                <div className="flex flex-col items-center gap-3 sm:gap-4">
+                  <div className="p-4 sm:p-6 glass rounded-xl sm:rounded-2xl border-2 border-primary/30">
                     <QRCodeSVG
                       id="qr-code-svg"
                       value={profile.qr_code}
-                      size={200}
+                      size={180}
                       level="H"
                       includeMargin
-                      className="w-full h-auto"
+                      className="w-full h-auto max-w-[180px] sm:max-w-[200px]"
                     />
                   </div>
                   <div className="text-center">

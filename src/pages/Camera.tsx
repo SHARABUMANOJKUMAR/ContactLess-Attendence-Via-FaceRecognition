@@ -284,31 +284,31 @@ const Camera = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 relative overflow-hidden">
       {/* Top navigation buttons */}
-      <div className="absolute top-6 right-6 z-30 flex gap-3">
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 md:top-6 md:right-6 z-30 flex gap-2 sm:gap-3">
         <button
           onClick={() => navigate("/qr-scanner")}
-          className="p-3 glass rounded-full hover:bg-accent/20 transition-all border border-accent/30 hover:border-accent"
+          className="p-2 sm:p-2.5 md:p-3 glass rounded-full hover:bg-accent/20 transition-all border border-accent/30 hover:border-accent"
           title="QR Scanner"
         >
-          <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
           </svg>
         </button>
         <button
           onClick={() => navigate("/history")}
-          className="p-3 glass rounded-full hover:bg-primary/20 transition-all border border-primary/30 hover:border-primary"
+          className="p-2 sm:p-2.5 md:p-3 glass rounded-full hover:bg-primary/20 transition-all border border-primary/30 hover:border-primary"
           title="View History"
         >
-          <History className="w-6 h-6 text-primary" />
+          <History className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-primary" />
         </button>
         <button
           onClick={() => navigate("/")}
-          className="p-3 glass rounded-full hover:bg-primary/20 transition-all border border-primary/30 hover:border-primary"
+          className="p-2 sm:p-2.5 md:p-3 glass rounded-full hover:bg-primary/20 transition-all border border-primary/30 hover:border-primary"
           title="Back to Login"
         >
-          <ArrowLeft className="w-6 h-6 text-primary" />
+          <ArrowLeft className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-primary" />
         </button>
       </div>
 
@@ -328,16 +328,16 @@ const Camera = () => {
       </div>
 
       {/* Header */}
-      <div className="text-center mb-6 z-10">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
+      <div className="text-center mb-4 sm:mb-6 z-10 px-4">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
           Face Verification
         </h1>
-        <p className="text-muted-foreground">Look at the camera for attendance marking</p>
+        <p className="text-sm sm:text-base text-muted-foreground">Look at the camera for attendance marking</p>
       </div>
 
       {/* Camera container */}
-      <div className="relative glass rounded-3xl overflow-hidden holographic-border max-w-3xl w-full">
-        <div className="scan-line absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-70 z-20" />
+      <div className="relative glass rounded-2xl sm:rounded-3xl overflow-hidden holographic-border max-w-3xl w-full mx-2 sm:mx-4">
+        <div className="scan-line absolute top-0 left-0 right-0 h-0.5 sm:h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-70 z-20" />
         
         <div className="relative">
           <video
@@ -354,63 +354,63 @@ const Camera = () => {
         </div>
 
         {/* Overlay corners */}
-        <div className="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-primary rounded-tl-lg z-10" />
-        <div className="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-primary rounded-tr-lg z-10" />
-        <div className="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-primary rounded-bl-lg z-10" />
-        <div className="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-primary rounded-br-lg z-10" />
+        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 w-8 h-8 sm:w-12 sm:h-12 border-t-2 border-l-2 border-primary rounded-tl-lg z-10" />
+        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 w-8 h-8 sm:w-12 sm:h-12 border-t-2 border-r-2 border-primary rounded-tr-lg z-10" />
+        <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 w-8 h-8 sm:w-12 sm:h-12 border-b-2 border-l-2 border-primary rounded-bl-lg z-10" />
+        <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 w-8 h-8 sm:w-12 sm:h-12 border-b-2 border-r-2 border-primary rounded-br-lg z-10" />
       </div>
 
       {/* Capture button */}
       {status === "scanning" && !isProcessing && (
         <button
           onClick={handleCapture}
-          className="mt-6 z-10 px-8 py-4 bg-gradient-primary text-primary-foreground rounded-2xl font-bold text-lg hover:shadow-glow-primary transition-all"
+          className="mt-4 sm:mt-6 z-10 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-primary text-primary-foreground rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:shadow-glow-primary transition-all"
         >
-          <div className="flex items-center gap-3">
-            <CameraIcon className="w-6 h-6" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <CameraIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             Capture Attendance
           </div>
         </button>
       )}
 
       {/* Status message */}
-      <div className="mt-8 text-center z-10">
-        <div className="glass rounded-2xl p-6 max-w-md mx-auto">
+      <div className="mt-4 sm:mt-8 text-center z-10 px-2 sm:px-4">
+        <div className="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 max-w-md mx-auto">
           {status === "scanning" && !isProcessing && (
-            <div className="flex items-center justify-center gap-3">
-              <CameraIcon className="w-6 h-6 text-primary" />
-              <p className="text-lg text-foreground">{message}</p>
+            <div className="flex items-center justify-center gap-2 sm:gap-3">
+              <CameraIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              <p className="text-sm sm:text-base md:text-lg text-foreground">{message}</p>
             </div>
           )}
           
           {isProcessing && status === "scanning" && (
-            <div className="flex items-center justify-center gap-3">
-              <Loader2 className="w-6 h-6 text-primary animate-spin" />
-              <p className="text-lg text-foreground">{message}</p>
+            <div className="flex items-center justify-center gap-2 sm:gap-3">
+              <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary animate-spin" />
+              <p className="text-sm sm:text-base md:text-lg text-foreground">{message}</p>
             </div>
           )}
 
           {status === "success" && (
-            <div className="flex flex-col items-center gap-3">
-              <CheckCircle2 className="w-16 h-16 text-success drop-shadow-glow-success" />
-              <p className="text-2xl font-bold text-success">{message}</p>
+            <div className="flex flex-col items-center gap-2 sm:gap-3">
+              <CheckCircle2 className="w-12 h-12 sm:w-16 sm:h-16 text-success drop-shadow-glow-success" />
+              <p className="text-lg sm:text-xl md:text-2xl font-bold text-success">{message}</p>
             </div>
           )}
 
           {status === "error" && (
-            <div className="flex flex-col items-center gap-3">
-              <XCircle className="w-16 h-16 text-destructive drop-shadow-glow-error" />
-              <p className="text-2xl font-bold text-destructive">{message}</p>
+            <div className="flex flex-col items-center gap-2 sm:gap-3">
+              <XCircle className="w-12 h-12 sm:w-16 sm:h-16 text-destructive drop-shadow-glow-error" />
+              <p className="text-lg sm:text-xl md:text-2xl font-bold text-destructive">{message}</p>
             </div>
           )}
 
           {status === "completed" && (
-            <div className="flex flex-col items-center gap-3">
-              <CheckCircle2 className="w-16 h-16 text-success drop-shadow-glow-success" />
-              <p className="text-xl font-semibold text-success">{message}</p>
+            <div className="flex flex-col items-center gap-2 sm:gap-3">
+              <CheckCircle2 className="w-12 h-12 sm:w-16 sm:h-16 text-success drop-shadow-glow-success" />
+              <p className="text-base sm:text-lg md:text-xl font-semibold text-success">{message}</p>
               <button
                 onClick={() => navigate("/")}
-                className="mt-4 px-6 py-2 bg-gradient-primary text-primary-foreground rounded-lg hover:shadow-glow-primary transition-all"
+                className="mt-3 sm:mt-4 px-5 sm:px-6 py-2 bg-gradient-primary text-primary-foreground rounded-lg hover:shadow-glow-primary transition-all text-sm sm:text-base"
               >
                 Done
               </button>
